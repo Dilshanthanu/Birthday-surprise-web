@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Stars, ChevronRight, Music, HeartHandshake, Camera, MessageCircleHeart, Quote, Smile } from 'lucide-react';
+import { Heart, Stars, ChevronRight, Music, HeartHandshake, Camera, MessageCircleHeart, Quote, Smile, Volume2, VolumeX } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const StitchSVG = ({ className }) => (
@@ -22,6 +22,8 @@ const App = () => {
     const [unlocked, setUnlocked] = useState(false);
     const [isTargetReached, setIsTargetReached] = useState(false);
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [isMuted, setIsMuted] = useState(false);
+    const audioRef = useRef(null);
 
     const targetDate = new Date('2026-02-06T00:00:00');
 
@@ -51,9 +53,21 @@ const App = () => {
             const timer = setTimeout(() => {
                 handleConfetti();
             }, 500);
+
+            if (audioRef.current) {
+                audioRef.current.play().catch(err => console.log("Audio play failed:", err));
+            }
+
             return () => clearTimeout(timer);
         }
     }, [unlocked]);
+
+    const toggleMute = () => {
+        if (audioRef.current) {
+            audioRef.current.muted = !audioRef.current.muted;
+            setIsMuted(!isMuted);
+        }
+    };
 
     const handleConfetti = () => {
         const duration = 5 * 1000;
@@ -74,6 +88,8 @@ const App = () => {
             confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
         }, 250);
     };
+
+
 
     const FloatingHearts = () => {
         return (
@@ -147,7 +163,23 @@ const App = () => {
 
     return (
         <div className="relative min-h-screen selection:bg-romantic-200">
+            <audio ref={audioRef} src="/happy-birthday-469282.mp3" loop />
             <FloatingHearts />
+
+            <AnimatePresence>
+                {unlocked && (
+                    <motion.button
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        onClick={toggleMute}
+                        className="fixed bottom-6 right-6 z-50 p-4 bg-white/80 glass rounded-full shadow-lg text-romantic-600 hover:bg-white transition-all group"
+                        title={isMuted ? "Unmute Music" : "Mute Music"}
+                    >
+                        {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} className="animate-pulse" />}
+                    </motion.button>
+                )}
+            </AnimatePresence>
 
             <main className="relative z-10 container mx-auto px-4 py-8 md:py-12 flex flex-col items-center min-h-screen justify-center">
                 {!isTargetReached ? (
