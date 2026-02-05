@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Stars, ChevronRight, Music, HeartHandshake, Camera, MessageCircleHeart, Quote, Smile, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Stars, ChevronRight, Music, HeartHandshake, Camera, MessageCircleHeart, Quote, Smile, Volume2, VolumeX, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const StitchSVG = ({ className }) => (
     <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -23,6 +28,7 @@ const App = () => {
     const [isTargetReached, setIsTargetReached] = useState(false);
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [isMuted, setIsMuted] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
     const audioRef = useRef(null);
 
     const targetDate = new Date('2026-02-06T00:00:00');
@@ -124,38 +130,139 @@ const App = () => {
     };
 
     const Gallery = () => {
-        const items = [
-            { id: 1, title: 'Our First Date', description: 'Everything started here...', color: 'bg-rose-200' },
-            { id: 2, title: 'Summer Memories', description: 'The sun was bright, but you were brighter.', color: 'bg-pink-200' },
-            { id: 3, title: 'Late Night Talks', description: 'Hours felt like seconds with you.', color: 'bg-indigo-100' },
-            { id: 4, title: 'Together Always', description: 'My favorite place is being next to you.', color: 'bg-red-100' },
+        const containerRef = useRef(null);
+        const allImages = [
+            "WhatsApp Image 2026-02-05 at 19.45.23.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.45.49.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.45.51.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.45.56.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.45.59.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.00.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.02 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.02.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.03 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.03.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.05.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.07.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.08.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.09.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.13.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.14.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.15 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.15.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.16.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.17 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.17.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.18 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.18.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.19 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.19.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.20 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.20.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.21 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.21.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.22 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.22.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.23 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.23.jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.24 (1).jpeg",
+            "WhatsApp Image 2026-02-05 at 19.46.24.jpeg"
         ];
 
+        const colors = ['bg-rose-100', 'bg-pink-100', 'bg-indigo-100', 'bg-red-100', 'bg-orange-100', 'bg-purple-100', 'bg-blue-100', 'bg-teal-100'];
+        const titles = [
+            "Pure Happiness", "Eternal Love", "Sweet Memories", "Together Forever", "My Everything",
+            "Favorite Adventure", "Heart & Soul", "Our Story", "Beautiful Moments", "Infinite Joy",
+            "Best Days", "Perfect Match", "Hand in Hand", "Soulmates", "True Love",
+            "Sunshine Moments", "Dream Come True", "Simply Us", "Golden Hours", "Cherished Times",
+            "Love Always", "Our Journey", "Magic Moments", "Sparkling Smiles", "Special Bond",
+            "Always You", "Perfect Day", "Lovely Memories", "Pure Bliss", "My Person",
+            "Happy Times", "Sweet Heart", "Forever Mine", "Beautiful You", "Our Love"
+        ];
+        const descriptions = [
+            "Your smile is my favorite sight.", "Every moment with you is a treasure.", "Building a life of beautiful memories.",
+            "I'm so lucky to have you in my life.", "You make every day feel like a dream.", "My favorite place is being by your side.",
+            "You are the best thing that ever happened to me.", "Our love story is my favorite one.", "Capturing the magic of us.",
+            "Life is so much brighter with you.", "To many more adventures together.", "You and me, against the world.",
+            "Falling in love with you every single day.", "Thank you for being you.", "You complete me in every way.",
+            "Spreading love and happiness.", "May our love continue to grow.", "Treasuring every second we spend together.",
+            "You are my sunshine on a cloudy day.", "Feeling blessed to have you.", "You are my heart's desire.",
+            "The journey of a thousand miles starts with you.", "Making magic wherever we go.", "Your laughter is music to my ears.",
+            "A bond that can never be broken.", "It was always you.", "Making every day count.", "Memories that will last a lifetime.",
+            "Pure bliss in every moment.", "You're my person, now and forever.", "Happy vibes only.", "Sweet moments like these.",
+            "Forever is a long time, but I'd spend it with you.", "You're beautiful inside and out.", "Our love is a beautiful journey."
+        ];
+
+        const items = allImages.map((img, idx) => ({
+            id: idx + 1,
+            title: titles[idx] || `Memory ${idx + 1}`,
+            description: descriptions[idx] || "Creating beautiful memories together.",
+            color: colors[idx % colors.length],
+            image: `/images/${img}`
+        }));
+
+        useGSAP(() => {
+            const cards = gsap.utils.toArray('.gallery-card');
+
+            cards.forEach((card, i) => {
+                gsap.fromTo(card,
+                    {
+                        opacity: 0,
+                        y: 100,
+                        rotateX: -20,
+                        scale: 0.8
+                    },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        rotateX: 0,
+                        scale: 1,
+                        duration: 1.2,
+                        ease: "power4.out",
+                        scrollTrigger: {
+                            trigger: card,
+                            start: "top bottom-=100",
+                            toggleActions: "play none none reverse"
+                        },
+                        delay: i * 0.1
+                    }
+                );
+            });
+        }, { scope: containerRef });
+
+
+
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-12">
+            <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-2 gap-8 my-16">
                 {items.map((item, idx) => (
-                    <motion.div
+                    <div
                         key={item.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: idx * 0.2 }}
-                        className={`group relative overflow-hidden rounded-3xl h-64 ${item.color} glass shadow-xl hover:shadow-2xl transition-all duration-500`}
+                        onClick={() => setSelectedImage(item)}
+                        className={`gallery-card group relative overflow-hidden rounded-[2rem] h-80 ${item.color} glass shadow-xl transition-shadow duration-500 cursor-pointer hover:shadow-2xl`}
                     >
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent group-hover:from-black/40 transition-all duration-500" />
-                        <div className="absolute inset-0 flex flex-col justify-end p-6">
-                            <h3 className="text-2xl font-playfair font-bold text-white mb-2">{item.title}</h3>
-                            <p className="text-white/90 text-sm opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                        <div className="absolute inset-0 overflow-hidden">
+                            <img
+                                src={item.image}
+                                alt={item.title}
+                                className="w-full h-full object-cover opacity-80"
+                            />
+                        </div>
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                        <div className="card-content absolute inset-0 flex flex-col justify-end p-8">
+                            <h3 className="text-2xl md:text-3xl font-playfair font-bold text-white mb-3">
+                                {item.title}
+                            </h3>
+                            <p className="text-white/90 text-sm md:text-base max-w-[90%]">
                                 {item.description}
                             </p>
                         </div>
-                        <motion.div
-                            className="absolute top-4 right-4 text-white/50 group-hover:text-white transition-colors"
-                            whileHover={{ scale: 1.2, rotate: 10 }}
-                        >
-                            <Camera size={24} />
-                        </motion.div>
-                    </motion.div>
+
+                        <div className="absolute top-6 right-6 text-white/70">
+                            <Camera size={28} />
+                        </div>
+                    </div>
                 ))}
             </div>
         );
@@ -229,16 +336,39 @@ const App = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         className="flex flex-col items-center justify-center min-h-[85vh] text-center px-4"
                     >
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.1, 1],
-                                rotate: [0, 5, -5, 0]
-                            }}
-                            transition={{ repeat: Infinity, duration: 2 }}
-                            className="text-romantic-500 mb-6 md:mb-8"
-                        >
-                            <Heart className="w-20 h-20 md:w-28 md:h-28" fill="currentColor" strokeWidth={1} />
-                        </motion.div>
+                        <div className="mb-8 relative">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 1 }}
+                                className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-romantic-200 shadow-2xl mx-auto"
+                            >
+                                <motion.div
+                                    animate={{
+                                        boxShadow: [
+                                            "0 0 20px rgba(244, 63, 94, 0.2)",
+                                            "0 0 40px rgba(244, 63, 94, 0.4)",
+                                            "0 0 20px rgba(244, 63, 94, 0.2)"
+                                        ]
+                                    }}
+                                    transition={{ repeat: Infinity, duration: 2 }}
+                                    className="w-full h-full"
+                                >
+                                    <img
+                                        src="/images/WhatsApp Image 2026-02-05 at 19.46.21.jpeg"
+                                        alt="Beautiful"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </motion.div>
+                            </motion.div>
+                            <motion.div
+                                animate={{ scale: [1, 1.2, 1] }}
+                                transition={{ repeat: Infinity, duration: 1.5 }}
+                                className="absolute -top-4 -right-4 text-romantic-500"
+                            >
+                                <Heart fill="currentColor" size={40} />
+                            </motion.div>
+                        </div>
 
                         <h1 className="heading-romantic text-4xl sm:text-5xl md:text-7xl mb-4 md:mb-6 leading-tight">
                             Hey Beautiful!
@@ -255,10 +385,6 @@ const App = () => {
                         >
                             Open My Surprise <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
                         </motion.button>
-
-                        <div className="mt-12">
-                            <StitchSVG className="w-32 h-32 md:w-40 md:h-40" />
-                        </div>
                     </motion.div>
                 ) : (
                     <div className="w-full max-w-4xl mx-auto px-2 sm:px-4">
@@ -376,10 +502,23 @@ const App = () => {
                                 </p>
                             </div>
 
-                            <div className="mt-12 flex justify-center gap-2">
-                                {[...Array(3)].map((_, i) => (
-                                    <Heart key={i} size={16} fill="#f43f5e" className="text-romantic-500" />
-                                ))}
+                            <div className="mt-12 flex flex-col items-center gap-6">
+                                <motion.div
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    className="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden shadow-lg rotate-3 hover:rotate-0 transition-transform duration-500"
+                                >
+                                    <img
+                                        src="/images/WhatsApp Image 2026-02-05 at 19.46.03.jpeg"
+                                        alt="Us"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </motion.div>
+                                <div className="flex justify-center gap-2">
+                                    {[...Array(3)].map((_, i) => (
+                                        <Heart key={i} size={16} fill="#f43f5e" className="text-romantic-500" />
+                                    ))}
+                                </div>
                             </div>
                         </motion.section>
 
@@ -391,6 +530,55 @@ const App = () => {
                     </div>
                 )}
             </main>
+
+            <AnimatePresence>
+                {selectedImage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setSelectedImage(null)}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="relative max-w-5xl w-full max-h-[90vh] rounded-3xl overflow-hidden bg-white/10 glass shadow-2xl"
+                        >
+                            <button
+                                onClick={() => setSelectedImage(null)}
+                                className="absolute top-4 right-4 p-2 rounded-full bg-black/50 text-white border border-white/20 hover:bg-black/70 transition-colors z-10"
+                            >
+                                <X size={24} />
+                            </button>
+
+                            <div className="flex flex-col md:flex-row h-full">
+                                <div className="md:w-2/3 h-[50vh] md:h-auto overflow-hidden">
+                                    <img
+                                        src={selectedImage.image}
+                                        alt={selectedImage.title}
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
+                                <div className="md:w-1/3 p-8 flex flex-col justify-center bg-white/5">
+                                    <h3 className="text-3xl font-playfair font-bold text-white mb-4">
+                                        {selectedImage.title}
+                                    </h3>
+                                    <p className="text-white/80 text-lg leading-relaxed mb-6">
+                                        {selectedImage.description}
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <Heart size={20} fill="#f43f5e" className="text-rose-500" />
+                                        <span className="text-white/60 italic">Cherished Moment</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
